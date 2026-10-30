@@ -3,7 +3,7 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   typedRoutes: false,
-  // Document uploads from server actions (the console; later the Docs tab).
+  // Document uploads from server actions (the console and the Docs tab).
   experimental: { serverActions: { bodySizeLimit: '26mb' } },
 }
 

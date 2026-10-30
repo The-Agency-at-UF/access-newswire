@@ -506,8 +506,13 @@ tier, the approval gates and the pipeline rails — it is pure, and
 **Data.** Screens are server components that read Supabase under RLS; there is
 no mock data. A screen whose table doesn't exist yet renders an `EmptyState`
 saying what will appear there. `lib/workspace.ts` loads the client for every
-workspace route (cached per request). Until `artifacts` exists every client's
-stage state is `EMPTY_CLIENT_STATE`, so gated stages show their approval gate.
+workspace route (cached per request), with its current release (the newest)
+and stage state. `clientStateFrom()` in `lib/clientState.ts` turns artifacts,
+meetings and the release into that state; an artifact with an approved
+version stays approved while a revision is drafted, as the database gates
+read it. Pages that should follow background work render `<LiveRefresh
+tables={[...]} />` (`components/LiveRefresh.tsx`), which re-renders on
+Realtime changes.
 
 **State.** `lib/store.tsx` holds UI-only state that must survive navigation:
 the "My clients" filter, the signed-in member's id, the open workspace's
@@ -520,9 +525,11 @@ two in step.
 
 **Built so far (Phase 1).** Clerk auth with a required organization,
 `team_members` and `clients` in Supabase with RLS, the Clerk membership
-webhook, the client list, intake and workspace header on real data, the team
-in Settings, and `/dev`, a barebone page that exercises all of it.
+webhook, the client list (with each client's current stage), intake,
+workspace header and pipelines on real data, the Docs tab (upload, live index
+status, keyword search; `lib/documents.ts` is shared with `/dev`), the team in
+Settings, and `/dev`, a barebone page that exercises all of it.
 
 **Backend complete, screens next.** All §8 tables, rules, the worker and every
-§11 task exist and are reachable from `/dev`; the product screens still need
-wiring to them (most show an `EmptyState`).
+§11 task exist and are reachable from `/dev`; the stage screens, Inbox,
+Approvals and Journalists still need wiring to them (they show an `EmptyState`).
