@@ -124,12 +124,14 @@ export const LABEL_COLORS: Record<EmailLabel, Swatch> = {
   'AUTO': { bg: '#EEEDE9', fg: '#6B6A65' },
 }
 
+const FAILED: StatusBadge = { label: 'Failed', bg: '#F8E3DE', fg: '#9C3520', dot: '#C9583F' }
+
 /** Document index state, as the Docs screen shows it. */
 export const INDEX_STATUS: Record<Enums<'index_status'>, StatusBadge> = {
   pending: { label: 'Queued', ...STATUS.Pending },
   indexing: { label: 'Indexing', ...STATUS['In Review'] },
   indexed: { label: 'Indexed', ...STATUS.Indexed },
-  failed: { label: 'Failed', bg: '#F8E3DE', fg: '#9C3520', dot: '#C9583F' },
+  failed: FAILED,
   skipped: { label: 'Not indexed', ...STATUS['Not started'] },
 }
 
@@ -139,4 +141,13 @@ export const DOC_SOURCES: Record<Enums<'document_source'>, string> = {
   email_attachment: 'Inbox',
   generated: 'Generated',
   note: 'Note',
+}
+
+/** Background job state, as the Activity card shows it. */
+export const JOB_STATUS: Record<Enums<'job_status'>, StatusBadge> = {
+  queued: { label: 'Queued', ...STATUS.Pending },
+  running: { label: 'Running', ...STATUS['In Review'] },
+  succeeded: { label: 'Done', ...STATUS.Approved },
+  failed: FAILED,
+  canceled: { label: 'Canceled', ...STATUS.Archived },
 }

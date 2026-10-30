@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useActionState, useState } from 'react'
 import type { Enums } from '@access/db'
 import { StatusPill } from '@/components/ui/badges'
 import { FilterChip } from '@/components/ui/controls'
 import { DOC_SOURCES, INDEX_STATUS } from '@/lib/tokens'
+import { reindexDocumentAction } from './actions'
 
 export interface DocRow {
   id: string
@@ -25,8 +26,21 @@ function size(bytes: number | null): string {
   return bytes < 1024 * 1024 ? `${Math.ceil(bytes / 1024)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`
 }
 
+function RetryButton({ clientId, documentId }: { clientId: string; documentId: string }) {
+  const [result, formAction, pending] = useActionState(reindexDocumentAction, null)
+  return (
+    <form action={formAction}>
+      <input type="hidden" name="client_id" value={clientId} />
+      <input type="hidden" name="document_id" value={documentId} />
+      <button type="submit" className="btn btn--xs btn--quiet" disabled={pending || result?.ok}>
+        {result?.ok ? 'Queued' : pending ? '…' : 'Retry'}
+      </button>
+    </form>
+  )
+}
+
 /** The client's documents, filterable by where they came from. */
-export function DocsTable({ docs }: { docs: DocRow[] }) {
+export function DocsTable({ clientId, docs }: { clientId: string; docs: DocRow[] }) {
   const [source, setSource] = useState<Enums<'document_source'> | null>(null)
   const present = (Object.keys(DOC_SOURCES) as Enums<'document_source'>[]).filter((s) => docs.some((d) => d.source === s))
   const rows = source ? docs.filter((d) => d.source === source) : docs
@@ -65,7 +79,10 @@ export function DocsTable({ docs }: { docs: DocRow[] }) {
               <span className="note">{doc.index_error ?? `Added ${added.format(new Date(doc.created_at))}`}</span>
             </span>
             <span>{DOC_SOURCES[doc.source]}</span>
-            <StatusPill badge={INDEX_STATUS[doc.index_status]} />
+            <span className="row" style={{ gap: 6 }}>
+              <StatusPill badge={INDEX_STATUS[doc.index_status]} />
+              {doc.index_status === 'failed' && <RetryButton clientId={clientId} documentId={doc.id} />}
+            </span>
             <span className="cellMono">{size(doc.size_bytes)}</span>
           </div>
         ))}

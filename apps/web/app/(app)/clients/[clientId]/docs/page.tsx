@@ -103,7 +103,7 @@ export default async function DocsPage({
             Uploads, inbox attachments and generated files for this client appear here, indexed for search.
           </EmptyState>
         ) : (
-          <DocsTable docs={rows} />
+          <DocsTable clientId={client.id} docs={rows} />
         )}
       </div>
     </div>

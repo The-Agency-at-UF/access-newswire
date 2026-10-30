@@ -1,7 +1,6 @@
 import 'server-only'
 import type { supabaseServer } from '@/lib/supabase/server'
-
-export const MAX_UPLOAD_BYTES = 25 * 1024 * 1024
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_MB } from '@/lib/uploads'
 
 /**
  * Store an upload in `client-files` and record its `documents` row, as the
@@ -13,7 +12,7 @@ export async function uploadClientDocument(
   { orgId, clientId, file, title }: { orgId: string; clientId: string; file: unknown; title: string | null },
 ): Promise<string> {
   if (!(file instanceof File) || file.size === 0) throw new Error('Choose a file.')
-  if (file.size > MAX_UPLOAD_BYTES) throw new Error('Files are limited to 25 MB.')
+  if (file.size > MAX_UPLOAD_BYTES) throw new Error(`Files are limited to ${MAX_UPLOAD_MB} MB.`)
 
   const documentId = crypto.randomUUID()
   const filename = file.name.normalize('NFKD').replace(/[^\w.\- ]+/g, '').replace(/\s+/g, '-') || 'file'

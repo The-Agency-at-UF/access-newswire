@@ -32,3 +32,20 @@ export async function uploadDocumentAction(_prev: UploadState, formData: FormDat
     return { ok: false, message: error instanceof Error ? error.message : String(error) }
   }
 }
+
+/** Queue indexing again for a document that failed or was skipped. */
+export async function reindexDocumentAction(_prev: UploadState, formData: FormData): Promise<UploadState> {
+  await requireOrgSession()
+  const parsed = z.object({ client_id: z.uuid(), document_id: z.uuid() }).safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return { ok: false, message: 'Invalid document.' }
+
+  const { error } = await (await supabaseServer()).rpc('enqueue_job', {
+    p_type: 'document.index',
+    p_client_id: parsed.data.client_id,
+    p_input: { document_id: parsed.data.document_id },
+  })
+  if (error) return { ok: false, message: error.message }
+
+  revalidatePath(`/clients/${parsed.data.client_id}/docs`)
+  return { ok: true, message: 'Indexing is queued.' }
+}
