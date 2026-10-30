@@ -1,0 +1,25 @@
+{
+  "name": "@access/ai",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Model routing, output schemas, context builder and Claude/Voyage clients (AGENTS.md §10). Server-side only.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@access/db": "workspace:*",
+    "@anthropic-ai/sdk": "^0.137.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "access-pr-bot",
+  "private": true,
+  "packageManager": "pnpm@10.29.2",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "db:migration": "supabase migration new",
+    "db:push": "supabase db push --linked",
+    "db:test": "supabase test db --linked",
+    "db:types": "supabase gen types typescript --linked --schema public > packages/db/types.ts"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3"
+  }
+}

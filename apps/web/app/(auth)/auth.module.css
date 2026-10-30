@@ -1,0 +1,216 @@
+/*
+ * The Agency "Nerve" palette (brand book p. 11–12). Black is the ground,
+ * white the type; forms mix mostly dark and light purple, with the pink-red
+ * and yellow as accents and black shading their edges.
+ */
+.page {
+  --nerve-black: #000000;
+  --nerve-white: #ffffff;
+  --nerve-purple: #5302d8;
+  --nerve-lilac: #ab9bff;
+  --nerve-red: #ff4d56;
+  --nerve-yellow: #ffb23e;
+
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--nerve-black);
+  color: var(--nerve-white);
+  color-scheme: dark;
+  font-family: var(--font-franklin), 'Franklin Gothic', system-ui, sans-serif;
+}
+
+/* ---------- Forms (the blurred colour blobs) ---------- */
+
+.forms {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+}
+
+.form {
+  position: absolute;
+  display: block;
+  filter: blur(14px) saturate(1.15);
+  opacity: 0.95;
+  animation: drift 26s ease-in-out infinite alternate;
+}
+
+/* Large lead form, top left: heaviest in purple. */
+.formA {
+  width: 46vmax;
+  height: 40vmax;
+  top: -16vmax;
+  left: -14vmax;
+  border-radius: 62% 38% 55% 45% / 48% 60% 40% 52%;
+  background:
+    radial-gradient(circle at 70% 75%, var(--nerve-red) 0 14%, transparent 42%),
+    radial-gradient(circle at 35% 40%, var(--nerve-lilac) 0 10%, transparent 48%),
+    radial-gradient(circle at 55% 55%, var(--nerve-purple) 0 45%, #1c0049 72%, transparent 78%);
+}
+
+/* Bottom right: the warm accent, still mostly purple. */
+.formB {
+  width: 38vmax;
+  height: 32vmax;
+  right: -12vmax;
+  bottom: -14vmax;
+  border-radius: 45% 55% 38% 62% / 58% 42% 58% 42%;
+  background:
+    radial-gradient(circle at 30% 30%, var(--nerve-yellow) 0 10%, transparent 38%),
+    radial-gradient(circle at 45% 50%, var(--nerve-red) 0 18%, transparent 50%),
+    radial-gradient(circle at 60% 60%, var(--nerve-purple) 0 42%, #1c0049 70%, transparent 76%);
+  animation-duration: 32s;
+  animation-delay: -8s;
+}
+
+/* Small lilac form, top right. */
+.formC {
+  width: 16vmax;
+  height: 14vmax;
+  top: 8vh;
+  right: 6vw;
+  border-radius: 55% 45% 62% 38% / 45% 55% 45% 55%;
+  background:
+    radial-gradient(circle at 40% 35%, var(--nerve-lilac) 0 20%, transparent 55%),
+    radial-gradient(circle at 60% 65%, var(--nerve-purple) 0 40%, transparent 72%);
+  animation-duration: 22s;
+  animation-delay: -4s;
+}
+
+/* Small warm form, bottom left. */
+.formD {
+  width: 13vmax;
+  height: 11vmax;
+  left: 8vw;
+  bottom: 6vh;
+  border-radius: 40% 60% 50% 50% / 60% 40% 60% 40%;
+  background:
+    radial-gradient(circle at 35% 40%, var(--nerve-red) 0 22%, transparent 55%),
+    radial-gradient(circle at 65% 60%, var(--nerve-purple) 0 38%, transparent 72%);
+  animation-duration: 28s;
+  animation-delay: -14s;
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  to {
+    transform: translate3d(2.5vmax, 1.5vmax, 0) rotate(10deg) scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form {
+    animation: none;
+  }
+}
+
+/* Film grain over everything, the brand's tactile texture. */
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- Layout ---------- */
+
+.layout {
+  flex: 1;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 48px 24px 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 48px;
+}
+
+.brand {
+  display: grid;
+  gap: 18px;
+  max-width: 520px;
+}
+
+/* Text stand-in for the Ogg wordmark; swap for the official internal logo file. */
+.wordmark {
+  margin: 0;
+  font-family: var(--font-display), 'Ogg', Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(48px, 7.4vw, 96px);
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.product {
+  margin: 0;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--nerve-lilac);
+}
+
+.pitch {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 18px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.panel {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.foot {
+  padding: 16px 24px 24px;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.foot strong {
+  color: var(--nerve-white);
+  font-weight: 700;
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    padding: 40px 16px 16px;
+    align-content: start;
+  }
+
+  .brand {
+    justify-items: center;
+    text-align: center;
+    margin: 0 auto;
+  }
+
+  .pitch {
+    font-size: 16px;
+  }
+
+  /* No room to keep the small forms clear of the big ones and the type. */
+  .formC,
+  .formD {
+    display: none;
+  }
+}
