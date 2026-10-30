@@ -4,7 +4,6 @@ Instructions for AI coding agents (and humans) working in this repo. Read this b
 Keep it current: when a decision in **Open decisions** is made, move it into the relevant section.
 
 - Architecture doc: `docs/architecture.md` (Oct 13 original; this file wins where they differ)
-- Wireframes: `docs/wireframes.md` (copy of `access-pr-bot-wireframes.md`, v0.2; not added yet)
 
 ---
 
@@ -108,7 +107,6 @@ packages/
   exports/      docx (tracked changes for L2 edits) / pptx / csv renderers
 docs/
   architecture.md
-  wireframes.md
 supabase/       Supabase CLI, linked to the hosted project: migrations/, tests/database/ (pgTAP RLS tests)
 AGENTS.md
 ```
@@ -309,6 +307,7 @@ Every table has `id uuid default gen_random_uuid()`, `org_id text not null`, and
 - **Paths:** `{org_id}/{client_id}/{document_id}/{filename}`. Templates use `{org_id}/templates/...`.
 - **Policy:** the policy on `storage.objects` requires that `(storage.foldername(name))[1] = current_org_id()`.
 - **Downloads:** short-lived signed URLs only.
+- **Upload size:** app uploads go through a server action, and Vercel caps request bodies at 4.5 MB, so they're capped at 4 MB (`lib/uploads.ts`, with `bodySizeLimit` in `next.config.ts` just above it). Inbox attachments (up to 25 MB) are stored by the worker.
 - **Linking:** every file has a `documents` row.
 
 ---
@@ -410,7 +409,7 @@ Exports read the **approved** version only, land in the `exports` bucket with a 
 - Mutations go through **server actions**. Route handlers are for webhooks only.
 - Mark server-only modules with `import 'server-only'`. Secrets never live in files the client can import.
 - Use the generated Supabase types from `packages/db`. Don't hand-write table types.
-- UI follows `docs/wireframes.md`: a client workspace, the shared stage layout (context | draft | status/actions), status badges, and tier badges.
+- UI follows the `ACCESS PR Bot v2` design (§17): a client workspace, the shared stage layout (context | draft | status/actions), status badges, and tier badges.
 - Tests:
   - Unit tests for the context builder, tier gating, and schema validation.
   - SQL tests for RLS (a user from another org must see nothing).
@@ -506,8 +505,13 @@ tier, the approval gates and the pipeline rails — it is pure, and
 **Data.** Screens are server components that read Supabase under RLS; there is
 no mock data. A screen whose table doesn't exist yet renders an `EmptyState`
 saying what will appear there. `lib/workspace.ts` loads the client for every
-workspace route (cached per request). Until `artifacts` exists every client's
-stage state is `EMPTY_CLIENT_STATE`, so gated stages show their approval gate.
+workspace route (cached per request), with its current release (the newest)
+and stage state. `clientStateFrom()` in `lib/clientState.ts` turns artifacts,
+meetings and the release into that state; an artifact with an approved
+version stays approved while a revision is drafted, as the database gates
+read it. Pages that should follow background work render `<LiveRefresh
+tables={[...]} />` (`components/LiveRefresh.tsx`), which re-renders on
+Realtime changes.
 
 **State.** `lib/store.tsx` holds UI-only state that must survive navigation:
 the "My clients" filter, the signed-in member's id, the open workspace's
@@ -520,9 +524,12 @@ two in step.
 
 **Built so far (Phase 1).** Clerk auth with a required organization,
 `team_members` and `clients` in Supabase with RLS, the Clerk membership
-webhook, the client list, intake and workspace header on real data, the team
-in Settings, and `/dev`, a barebone page that exercises all of it.
+webhook, the client list (with each client's current stage), intake,
+workspace header and pipelines on real data, the overview's live Activity
+card (`components/JobActivity.tsx`: progress, errors, cancel), the Docs tab
+(upload, live index status, retry, keyword search; `lib/documents.ts` is
+shared with `/dev`), the team in Settings, and `/dev`, a barebone page that exercises all of it.
 
 **Backend complete, screens next.** All §8 tables, rules, the worker and every
-§11 task exist and are reachable from `/dev`; the product screens still need
-wiring to them (most show an `EmptyState`).
+§11 task exist and are reachable from `/dev`; the stage screens, Inbox,
+Approvals and Journalists still need wiring to them (they show an `EmptyState`).

@@ -11,6 +11,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import type { Enums } from '@access/db'
 import { requireOrgSession } from '@/lib/auth'
+import { uploadClientDocument } from '@/lib/documents'
 import { supabaseServer } from '@/lib/supabase/server'
 import type { ActionState } from './actions'
 
@@ -201,37 +202,12 @@ export async function archiveArtifact(_prev: ActionState, formData: FormData) {
 
 // ---------------------------------------------------------------- documents
 
-const MAX_UPLOAD_BYTES = 25 * 1024 * 1024
-
 export async function uploadDocument(_prev: ActionState, formData: FormData) {
   const file = formData.get('file')
   formData.delete('file')
   return run(formData, z.object({ client_id: id, title: optionalText }), async (input, db, session) => {
-    if (!(file instanceof File) || file.size === 0) throw new Error('Choose a file.')
-    if (file.size > MAX_UPLOAD_BYTES) throw new Error('Files are limited to 25 MB.')
-
-    const documentId = crypto.randomUUID()
-    const filename = file.name.normalize('NFKD').replace(/[^\w.\- ]+/g, '').replace(/\s+/g, '-') || 'file'
-    const path = `${session.orgId}/${input.client_id}/${documentId}/${filename}`
-
-    // Storage policy: the first path segment must be the caller's org.
-    const { error: uploadError } = await db.storage.from('client-files').upload(path, file, { contentType: file.type || undefined })
-    if (uploadError) throw new Error(uploadError.message)
-
-    // A pending document queues document.index automatically.
-    check(
-      await db.from('documents').insert({
-        id: documentId,
-        client_id: input.client_id,
-        source: 'upload',
-        bucket: 'client-files',
-        storage_path: path,
-        mime: file.type || null,
-        title: input.title ?? file.name,
-        size_bytes: file.size,
-      }),
-    )
-    return `Uploaded ${file.name}; indexing is queued.`
+    const name = await uploadClientDocument(db, { orgId: session.orgId, clientId: input.client_id, file, title: input.title })
+    return `Uploaded ${name}; indexing is queued.`
   })
 }
 

@@ -5,6 +5,8 @@
  * lives in `app/globals.css` as a custom property. Keep the two in step.
  */
 
+import type { Enums } from '@access/db'
+import type { StatusBadge } from './selectors/stages'
 import type {
   DisplayStatus,
   EmailLabel,
@@ -120,4 +122,32 @@ export const LABEL_COLORS: Record<EmailLabel, Swatch> = {
   'SOCIAL': { bg: '#F7E9DE', fg: '#8A4316' },
   'UNMATCHED': { bg: '#F8E3DE', fg: '#9C3520' },
   'AUTO': { bg: '#EEEDE9', fg: '#6B6A65' },
+}
+
+const FAILED: StatusBadge = { label: 'Failed', bg: '#F8E3DE', fg: '#9C3520', dot: '#C9583F' }
+
+/** Document index state, as the Docs screen shows it. */
+export const INDEX_STATUS: Record<Enums<'index_status'>, StatusBadge> = {
+  pending: { label: 'Queued', ...STATUS.Pending },
+  indexing: { label: 'Indexing', ...STATUS['In Review'] },
+  indexed: { label: 'Indexed', ...STATUS.Indexed },
+  failed: FAILED,
+  skipped: { label: 'Not indexed', ...STATUS['Not started'] },
+}
+
+/** Where a document came from, as the Docs filter names it. */
+export const DOC_SOURCES: Record<Enums<'document_source'>, string> = {
+  upload: 'Upload',
+  email_attachment: 'Inbox',
+  generated: 'Generated',
+  note: 'Note',
+}
+
+/** Background job state, as the Activity card shows it. */
+export const JOB_STATUS: Record<Enums<'job_status'>, StatusBadge> = {
+  queued: { label: 'Queued', ...STATUS.Pending },
+  running: { label: 'Running', ...STATUS['In Review'] },
+  succeeded: { label: 'Done', ...STATUS.Approved },
+  failed: FAILED,
+  canceled: { label: 'Canceled', ...STATUS.Archived },
 }

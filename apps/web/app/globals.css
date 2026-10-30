@@ -414,7 +414,7 @@ p {
   gap: 20px;
 }
 
-/** Context | draft | status — the shared stage layout from the wireframes. */
+/** Context | draft | status — the shared stage layout. */
 .stage {
   display: flex;
   flex-wrap: wrap;

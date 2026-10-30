@@ -41,7 +41,7 @@ export default async function DocsPage({ searchParams }: { searchParams: Promise
             </select>
           </label>
           <label>Title<input name="title" placeholder="defaults to the filename" /></label>
-          <label className={styles.wide}>File (PDF, DOCX, TXT, HTML, CSV; 25 MB)<input type="file" name="file" required /></label>
+          <label className={styles.wide}>File (PDF, DOCX, TXT, HTML, CSV; 4 MB)<input type="file" name="file" required /></label>
         </ActionForm>
       </section>
 

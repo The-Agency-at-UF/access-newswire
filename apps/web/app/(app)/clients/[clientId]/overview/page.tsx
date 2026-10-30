@@ -1,11 +1,12 @@
 import Link from 'next/link'
+import { JobActivity } from '@/components/JobActivity'
+import { LiveRefresh } from '@/components/LiveRefresh'
 import { SectionLabel } from '@/components/ui/badges'
 import { Pipeline } from '@/components/ui/Pipeline'
 import { pipeline } from '@/lib/selectors/stages'
+import { supabaseServer } from '@/lib/supabase/server'
 import { ONBOARDING_STAGES, RELEASE_STAGES, TIERS } from '@/lib/tokens'
 import { getWorkspace } from '@/lib/workspace'
-
-const NO_DATES = { m1: null, m2: null }
 
 const added = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
@@ -15,8 +16,16 @@ const added = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric',
  */
 export default async function OverviewPage({ params }: { params: Promise<{ clientId: string }> }) {
   const { clientId } = await params
-  const { client, cs } = await getWorkspace(clientId)
+  const { client, release, cs, meetingDates } = await getWorkspace(clientId)
   const t = TIERS[client.tier]
+
+  const jobs = await (await supabaseServer())
+    .from('jobs')
+    .select('id, type, status, progress, progress_message, error, created_at')
+    .eq('client_id', client.id)
+    .order('created_at', { ascending: false })
+    .limit(6)
+  if (jobs.error) throw new Error(`Could not load activity: ${jobs.error.message}`)
 
   const profile: [string, string][] = [
     ['Website', client.website ?? '—'],
@@ -28,10 +37,12 @@ export default async function OverviewPage({ params }: { params: Promise<{ clien
 
   return (
     <div className="page">
+      <LiveRefresh tables={['jobs', 'artifacts']} />
+
       <div className="card card--pad" style={{ padding: '18px 22px 20px', gap: 16 }}>
         <SectionLabel>Onboarding</SectionLabel>
         <Pipeline
-          nodes={pipeline(ONBOARDING_STAGES, cs, NO_DATES)}
+          nodes={pipeline(ONBOARDING_STAGES, cs, meetingDates)}
           clientId={clientId}
           label="Onboarding stages"
         />
@@ -40,11 +51,11 @@ export default async function OverviewPage({ params }: { params: Promise<{ clien
 
         <div className="row" style={{ alignItems: 'baseline', gap: 10 }}>
           <SectionLabel>Current release</SectionLabel>
-          <span className="hint hint--muted">None yet</span>
+          <span className={release ? undefined : 'hint hint--muted'}>{release?.title ?? 'None yet'}</span>
           <span className="hint">Stages shown for {client.tier}</span>
         </div>
         <Pipeline
-          nodes={pipeline(RELEASE_STAGES[client.tier], cs, NO_DATES)}
+          nodes={pipeline(RELEASE_STAGES[client.tier], cs, meetingDates)}
           clientId={clientId}
           label="Release stages"
         />
@@ -74,6 +85,11 @@ export default async function OverviewPage({ params }: { params: Promise<{ clien
           <Link href={`/clients/${clientId}/reporting`} style={{ fontWeight: 500, fontSize: 12.5 }}>
             Open reporting →
           </Link>
+        </div>
+
+        <div className="card card--pad" style={{ gap: 12 }}>
+          <SectionLabel>Activity</SectionLabel>
+          <JobActivity jobs={jobs.data} />
         </div>
       </div>
 
