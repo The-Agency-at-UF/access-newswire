@@ -120,6 +120,7 @@ export const LABEL_COLORS: Record<EmailLabel, Swatch> = {
   'SALES HANDOFF': { bg: '#E1F0E4', fg: '#1D6633' },
   'CLIENT UPDATE': { bg: '#FBEFD6', fg: '#7F5200' },
   'SOCIAL': { bg: '#F7E9DE', fg: '#8A4316' },
+  'OTHER': { bg: '#ECEBE6', fg: '#55534D' },
   'UNMATCHED': { bg: '#F8E3DE', fg: '#9C3520' },
   'AUTO': { bg: '#EEEDE9', fg: '#6B6A65' },
 }
