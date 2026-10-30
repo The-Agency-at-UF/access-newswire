@@ -530,6 +530,15 @@ card (`components/JobActivity.tsx`: progress, errors, cancel), the Docs tab
 (upload, live index status, retry, keyword search; `lib/documents.ts` is
 shared with `/dev`), the team in Settings, and `/dev`, a barebone page that exercises all of it.
 
+**Built so far (Phase 2).** The Inbox screen: folders (`lib/selectors/inbox.ts`:
+Assigned to me, Unmatched, All open, one per label, Handled, Auto-notifications),
+the message list and a preview with the classifier's read (marked AI when the
+model set it), extracted fields, attachments, Mark handled, and the correction
+form (`correct_email()`, optionally remembering the sender). Bodies render as
+plain text only. The person on inbox duty starts in Unmatched. Settings connects
+the shared mailbox (admins) and schedules inbox duty; the client overview shows
+the client's latest mail.
+
 **Backend complete, screens next.** All §8 tables, rules, the worker and every
-§11 task exist and are reachable from `/dev`; the stage screens, Inbox,
-Approvals and Journalists still need wiring to them (they show an `EmptyState`).
+§11 task exist and are reachable from `/dev`; the stage screens, Approvals
+and Journalists still need wiring to them (they show an `EmptyState`).

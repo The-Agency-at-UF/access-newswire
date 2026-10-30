@@ -1,9 +1,11 @@
 import { SectionLabel } from '@/components/ui/badges'
+import { requireOrgSession } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase/server'
+import { AddShiftForm, ConnectMailboxForm, RemoveShiftButton, ShiftTime } from './InboxSettings'
 
 /**
- * Settings — the tier matrix, the team, the prompt frameworks and the export
- * formats. The L3 "confirm" is an open decision from AGENTS.md §16.
+ * Settings — the tier matrix, the team, the shared mailbox, inbox duty, the
+ * prompt frameworks and the export formats. The L3 "confirm" is an open decision from AGENTS.md §16.
  */
 
 interface TierRow {
@@ -38,18 +40,31 @@ const TIER_MATRIX: readonly TierRow[] = [
   { stage: 'ACCESS stats reporting', l1: '✓', l2: '✓', l3: '✓' },
 ]
 
+const synced = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+
 const clientCount = (n: number) => `${n} client${n === 1 ? '' : 's'}`
 
 export default async function SettingsPage() {
   const muted = { color: 'var(--ink-faint)' }
 
+  const session = await requireOrgSession()
   const supabase = await supabaseServer()
-  const [team, clients] = await Promise.all([
+  const [team, clients, mailboxes, shifts] = await Promise.all([
     supabase.from('team_members').select('id, name, email').order('name'),
     supabase.from('clients').select('owner_id'),
+    supabase.from('mail_accounts').select('id, mailbox, subscription_id, subscription_expires_at, last_synced_at, last_error'),
+    supabase
+      .from('inbox_duty')
+      .select('id, member_id, starts_at, ends_at')
+      .gt('ends_at', new Date().toISOString())
+      .order('starts_at')
+      .limit(20),
   ])
   if (team.error) throw new Error(`Could not load the team: ${team.error.message}`)
   if (clients.error) throw new Error(`Could not load clients: ${clients.error.message}`)
+  if (mailboxes.error) throw new Error(`Could not load the mailbox: ${mailboxes.error.message}`)
+  if (shifts.error) throw new Error(`Could not load inbox duty: ${shifts.error.message}`)
+  const memberName = new Map(team.data.map((m) => [m.id, m.name]))
 
   const owned = new Map<string, number>()
   for (const { owner_id } of clients.data) {
@@ -118,6 +133,50 @@ export default async function SettingsPage() {
           {team.data.length === 0 && (
             <span className="hint hint--muted">Members appear here when they sign in.</span>
           )}
+        </div>
+
+        <div className="card card--pad" style={{ padding: '18px 20px', gap: 10 }}>
+          <SectionLabel>Shared mailbox</SectionLabel>
+          {mailboxes.data.map((a) => (
+            <div key={a.id} className="cellStack">
+              <span className="cellStrong">{a.mailbox}</span>
+              <span className="cellSub">
+                {a.subscription_id ? 'Receiving new mail' : 'Waiting for the mail subscription'}
+                {' · '}
+                {a.last_synced_at ? `last synced ${synced.format(new Date(a.last_synced_at))}` : 'not synced yet'}
+              </span>
+              {a.last_error && <span style={{ color: 'var(--danger)', fontSize: 12.5 }}>{a.last_error}</span>}
+            </div>
+          ))}
+          {mailboxes.data.length === 0 &&
+            (session.isAdmin ? (
+              <>
+                <span className="hint hint--muted">
+                  Read-only access (Microsoft Graph <span className="mono">Mail.Read</span>). Nothing is ever sent.
+                </span>
+                <ConnectMailboxForm />
+              </>
+            ) : (
+              <span className="hint hint--muted">Not connected yet. An admin connects it here.</span>
+            ))}
+        </div>
+
+        <div className="card card--pad" style={{ padding: '18px 20px', gap: 10 }}>
+          <SectionLabel>Inbox duty</SectionLabel>
+          <span className="hint hint--muted">Whoever is on duty gets the mail the classifier couldn&rsquo;t place.</span>
+          {shifts.data.map((s) => (
+            <div key={s.id} className="spread">
+              <span className="cellStack">
+                <span className="cellStrong">{memberName.get(s.member_id) ?? 'Unknown'}</span>
+                <span className="cellSub">
+                  <ShiftTime startsAt={s.starts_at} endsAt={s.ends_at} />
+                </span>
+              </span>
+              <RemoveShiftButton id={s.id} />
+            </div>
+          ))}
+          {shifts.data.length === 0 && <span className="hint hint--muted">No shifts scheduled.</span>}
+          {team.data.length > 0 && <AddShiftForm members={team.data} />}
         </div>
 
         <div className="card card--pad" style={{ padding: '18px 20px', gap: 10 }}>
