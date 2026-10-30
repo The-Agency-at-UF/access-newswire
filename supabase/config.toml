@@ -1,0 +1,7 @@
+# Supabase CLI config. There is no local stack: migrations, generated types and
+# pgTAP tests all run against the linked hosted project (`supabase link`).
+#
+# Don't run `supabase config push`. The hosted project's auth settings,
+# including Clerk as a third-party provider, are set in the dashboard, and
+# pushing this file would reset them to CLI defaults.
+project_id = "agency-newswire"
