@@ -1,14 +1,16 @@
 import Link from 'next/link'
 import { JobActivity } from '@/components/JobActivity'
 import { LiveRefresh } from '@/components/LiveRefresh'
-import { SectionLabel } from '@/components/ui/badges'
+import { LabelChip, SectionLabel } from '@/components/ui/badges'
 import { Pipeline } from '@/components/ui/Pipeline'
+import { emailChips, folderOf } from '@/lib/selectors/inbox'
 import { pipeline } from '@/lib/selectors/stages'
 import { supabaseServer } from '@/lib/supabase/server'
-import { ONBOARDING_STAGES, RELEASE_STAGES, TIERS } from '@/lib/tokens'
+import { LABEL_COLORS, ONBOARDING_STAGES, RELEASE_STAGES, TIERS } from '@/lib/tokens'
 import { getWorkspace } from '@/lib/workspace'
 
 const added = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+const shortDay = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' })
 
 /**
  * The client's at-a-glance page: where onboarding and the current release
@@ -19,13 +21,24 @@ export default async function OverviewPage({ params }: { params: Promise<{ clien
   const { client, release, cs, meetingDates } = await getWorkspace(clientId)
   const t = TIERS[client.tier]
 
-  const jobs = await (await supabaseServer())
-    .from('jobs')
-    .select('id, type, status, progress, progress_message, error, created_at')
-    .eq('client_id', client.id)
-    .order('created_at', { ascending: false })
-    .limit(6)
+  const supabase = await supabaseServer()
+  const [jobs, mail] = await Promise.all([
+    supabase
+      .from('jobs')
+      .select('id, type, status, progress, progress_message, error, created_at')
+      .eq('client_id', client.id)
+      .order('created_at', { ascending: false })
+      .limit(6),
+    supabase
+      .from('emails')
+      .select('id, subject, from_name, from_address, label, status, client_id, received_at, created_at')
+      .eq('client_id', client.id)
+      .neq('status', 'muted')
+      .order('received_at', { ascending: false, nullsFirst: false })
+      .limit(3),
+  ])
   if (jobs.error) throw new Error(`Could not load activity: ${jobs.error.message}`)
+  if (mail.error) throw new Error(`Could not load mail: ${mail.error.message}`)
 
   const profile: [string, string][] = [
     ['Website', client.website ?? '—'],
@@ -37,7 +50,7 @@ export default async function OverviewPage({ params }: { params: Promise<{ clien
 
   return (
     <div className="page">
-      <LiveRefresh tables={['jobs', 'artifacts']} />
+      <LiveRefresh tables={['jobs', 'artifacts', 'emails']} />
 
       <div className="card card--pad" style={{ padding: '18px 22px 20px', gap: 16 }}>
         <SectionLabel>Onboarding</SectionLabel>
@@ -76,7 +89,23 @@ export default async function OverviewPage({ params }: { params: Promise<{ clien
 
         <div className="card card--pad" style={{ gap: 8 }}>
           <SectionLabel>Latest from inbox</SectionLabel>
-          <span className="hint hint--muted">Nothing yet.</span>
+          {mail.data.length === 0 ? (
+            <span className="hint hint--muted">Nothing yet.</span>
+          ) : (
+            mail.data.map((e) => (
+              <Link key={e.id} href={`/inbox?folder=${folderOf(e.status)}&id=${e.id}`} className="stack" style={{ gap: 3 }}>
+                <span className="row" style={{ gap: 6 }}>
+                  {emailChips(e).map((chip) => (
+                    <LabelChip key={chip} label={chip} swatch={LABEL_COLORS[chip]} size="xs" />
+                  ))}
+                  <span className="note">
+                    {e.from_name || e.from_address} · {shortDay.format(new Date(e.received_at ?? e.created_at))}
+                  </span>
+                </span>
+                <span style={{ fontWeight: 500 }}>{e.subject || '(no subject)'}</span>
+              </Link>
+            ))
+          )}
         </div>
 
         <div className="card card--pad">

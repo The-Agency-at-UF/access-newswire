@@ -30,6 +30,7 @@ export type EmailLabel =
   | 'SALES HANDOFF'
   | 'CLIENT UPDATE'
   | 'SOCIAL'
+  | 'OTHER'
   | 'UNMATCHED'
   | 'AUTO'
 
