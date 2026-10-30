@@ -1,0 +1,25 @@
+{
+  "name": "@access/exports",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "docx / pptx / csv renderers (AGENTS.md §13).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "docx": "^9.13.0",
+    "pptxgenjs": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "jszip": "^3.10.2",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9"
+  }
+}
