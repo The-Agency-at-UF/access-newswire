@@ -3,10 +3,9 @@
 import Link from 'next/link'
 import { StatusPill, TierBadge } from '@/components/ui/badges'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { EMPTY_CLIENT_STATE } from '@/lib/clientState'
-import { currentStage } from '@/lib/selectors/stages'
+import { currentStage, type MeetingDates } from '@/lib/selectors/stages'
 import { useStore } from '@/lib/store'
-import type { Tier } from '@/lib/types'
+import type { ClientState, Tier } from '@/lib/types'
 
 export interface ClientListRow {
   id: string
@@ -17,9 +16,9 @@ export interface ClientListRow {
   owner_id: string | null
   created_at: string
   owner: { name: string } | null
+  cs: ClientState
+  meetingDates: MeetingDates
 }
-
-const NO_DATES = { m1: null, m2: null }
 
 const added = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
@@ -81,7 +80,7 @@ export function ClientTable({ clients }: { clients: ClientListRow[] }) {
           </div>
 
           {rows.map((client) => {
-            const stage = currentStage(client.tier, EMPTY_CLIENT_STATE, NO_DATES)
+            const stage = currentStage(client.tier, client.cs, client.meetingDates)
             return (
               <Link
                 key={client.id}
