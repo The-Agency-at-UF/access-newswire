@@ -1,0 +1,33 @@
+{
+  "name": "@access/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Queue worker: reads Supabase Queues (pgmq) and runs background tasks (AGENTS.md §11).",
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=.env src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsup",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@access/ai": "workspace:*",
+    "@access/db": "workspace:*",
+    "@access/exports": "workspace:*",
+    "@supabase/supabase-js": "^2.118.0",
+    "csv-parse": "^7.0.3",
+    "mammoth": "^1.13.0",
+    "postgres": "^3.4.9",
+    "unpdf": "^1.9.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsup": "^9.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9"
+  }
+}
