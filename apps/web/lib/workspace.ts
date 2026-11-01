@@ -18,13 +18,13 @@ export const getWorkspace = cache(async (clientId: string) => {
   const [clientRes, releaseRes, artifactsRes, meetingsRes] = await Promise.all([
     supabase
       .from('clients')
-      .select('id, name, website, industry, tier, release_cadence, created_at, owner:team_members(name)')
+      .select('id, name, website, industry, tier, release_cadence, onboarded_externally, created_at, owner:team_members(name)')
       .eq('id', clientId)
       .maybeSingle(),
     // The current release is the newest one; release stages show its work.
     supabase
       .from('releases')
-      .select('id, title, mode, due_on, access_uploaded_at')
+      .select('id, title, mode, due_on, source_email_id, access_uploaded_at')
       .eq('client_id', clientId)
       .order('created_at', { ascending: false })
       .limit(1)

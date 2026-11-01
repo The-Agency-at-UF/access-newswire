@@ -27,7 +27,7 @@ export async function StagePage({
   if (notForL1 && client.tier === 'L1') notFound()
 
   if (gate) {
-    const blocking = gates(cs)[gate]
+    const blocking = gates(cs, { onboardedExternally: client.onboarded_externally })[gate]
     if (blocking.blocked) return <ApprovalGate gate={blocking} clientId={clientId} />
   }
 

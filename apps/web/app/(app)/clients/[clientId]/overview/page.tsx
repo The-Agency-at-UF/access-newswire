@@ -8,6 +8,7 @@ import { pipeline } from '@/lib/selectors/stages'
 import { supabaseServer } from '@/lib/supabase/server'
 import { LABEL_COLORS, ONBOARDING_STAGES, RELEASE_STAGES, TIERS } from '@/lib/tokens'
 import { getWorkspace } from '@/lib/workspace'
+import { OnboardedToggle } from '../OnboardedToggle'
 
 const added = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 const shortDay = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' })
@@ -53,12 +54,20 @@ export default async function OverviewPage({ params }: { params: Promise<{ clien
       <LiveRefresh tables={['jobs', 'artifacts', 'emails']} />
 
       <div className="card card--pad" style={{ padding: '18px 22px 20px', gap: 16 }}>
-        <SectionLabel>Onboarding</SectionLabel>
-        <Pipeline
-          nodes={pipeline(ONBOARDING_STAGES, cs, meetingDates)}
-          clientId={clientId}
-          label="Onboarding stages"
-        />
+        <div className="row" style={{ alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+          <SectionLabel>Onboarding</SectionLabel>
+          {client.onboarded_externally && <span className="hint hint--muted">Onboarded before the app</span>}
+          <span className="pushRight">
+            <OnboardedToggle clientId={client.id} onboardedExternally={client.onboarded_externally} />
+          </span>
+        </div>
+        {!client.onboarded_externally && (
+          <Pipeline
+            nodes={pipeline(ONBOARDING_STAGES, cs, meetingDates)}
+            clientId={clientId}
+            label="Onboarding stages"
+          />
+        )}
 
         <div className="divider" />
 
