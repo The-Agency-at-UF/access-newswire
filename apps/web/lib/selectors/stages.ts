@@ -60,9 +60,14 @@ function swatchFor(text: string): DisplayStatus {
   return 'Not started'
 }
 
+/** Clients onboarded before the app skip everything before releases (as the database does). */
+export interface ClientFlags {
+  onboardedExternally?: boolean
+}
+
 /** The full stage sequence for a tier: onboarding, then that tier's release loop. */
-export function stageSequence(tier: Tier): readonly StageSpec[] {
-  return [...ONBOARDING_STAGES, ...RELEASE_STAGES[tier]]
+export function stageSequence(tier: Tier, { onboardedExternally = false }: ClientFlags = {}): readonly StageSpec[] {
+  return onboardedExternally ? RELEASE_STAGES[tier] : [...ONBOARDING_STAGES, ...RELEASE_STAGES[tier]]
 }
 
 export interface CurrentStage {
@@ -79,8 +84,9 @@ export function currentStage(
   tier: Tier,
   cs: ClientState,
   dates: MeetingDates,
+  flags: ClientFlags = {},
 ): CurrentStage {
-  const sequence = stageSequence(tier)
+  const sequence = stageSequence(tier, flags)
   const next = sequence.find(([key]) => !isStageDone(key, cs[key]))
   if (!next) return { label: 'Reporting', st: badge('Approved') }
 
@@ -149,7 +155,7 @@ export type GatedTab = 'onboarding' | 'strategy' | 'releases' | 'media' | 'pitch
  * Approval gates, straight from the workflow in AGENTS.md §1. Each stage reads
  * only the *approved* output of the one before it.
  */
-export function gates(cs: ClientState): Record<GatedTab, Gate> {
+export function gates(cs: ClientState, { onboardedExternally = false }: ClientFlags = {}): Record<GatedTab, Gate> {
   const gate = (ok: boolean, msg: string, label: string, tab: WorkspaceTab): Gate => ({
     blocked: !ok,
     msg,
@@ -159,19 +165,19 @@ export function gates(cs: ClientState): Record<GatedTab, Gate> {
 
   return {
     onboarding: gate(
-      cs.research === 'Approved',
+      onboardedExternally || cs.research === 'Approved',
       'The onboarding deck builds from approved research.',
       'Go to Research',
       'research',
     ),
     strategy: gate(
-      cs.deck === 'Approved' && cs.m1,
+      onboardedExternally || (cs.deck === 'Approved' && cs.m1),
       'Strategy needs an approved deck and Meeting 1 feedback.',
       'Go to Onboarding',
       'onboarding',
     ),
     releases: gate(
-      cs.strategy === 'Approved' && cs.m2,
+      onboardedExternally || (cs.strategy === 'Approved' && cs.m2),
       'Releases unlock once the strategy is approved after Meeting 2.',
       'Go to Strategy',
       'strategy',

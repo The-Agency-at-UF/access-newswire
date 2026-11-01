@@ -8,7 +8,7 @@ export default async function ClientsPage() {
   const [clients, releases, artifacts, meetings] = await Promise.all([
     supabase
       .from('clients')
-      .select('id, name, industry, tier, release_cadence, owner_id, created_at, owner:team_members(name)')
+      .select('id, name, industry, tier, release_cadence, owner_id, onboarded_externally, created_at, owner:team_members(name)')
       .order('name'),
     supabase.from('releases').select('id, client_id, access_uploaded_at').order('created_at', { ascending: false }),
     supabase.from('artifacts').select('client_id, release_id, type, status, approved_version_id').neq('status', 'archived'),

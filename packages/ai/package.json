@@ -5,7 +5,8 @@
   "type": "module",
   "description": "Model routing, output schemas, context builder and Claude/Voyage clients (AGENTS.md §10). Server-side only.",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./schemas": "./src/schemas.ts"
   },
   "scripts": {
     "lint": "tsc --noEmit",

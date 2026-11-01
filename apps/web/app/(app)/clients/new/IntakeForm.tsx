@@ -93,6 +93,16 @@ export function IntakeForm({ owners }: { owners: { id: string; name: string }[] 
               ))}
             </select>
           </label>
+
+          <label className="row" style={{ gap: 10, alignItems: 'flex-start', gridColumn: '1 / -1' }}>
+            <input type="checkbox" name="onboarded_externally" style={{ marginTop: 3 }} />
+            <span className="stack" style={{ gap: 2 }}>
+              <span className="fieldLabel">Already a client</span>
+              <span className="hint hint--muted">
+                Onboarded before this app. Skips research, the deck and strategy, so releases can start right away.
+              </span>
+            </span>
+          </label>
         </div>
 
         <div className="row" style={{ justifyContent: 'flex-end', gap: 8 }}>

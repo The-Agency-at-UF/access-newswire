@@ -39,6 +39,11 @@ export const clientInputSchema = z.object({
     .union([z.literal(''), z.uuid()])
     .optional()
     .transform((value) => value || null),
+  /** An existing client: skips research, deck and strategy (AGENTS.md §8). */
+  onboarded_externally: z
+    .literal('on')
+    .optional()
+    .transform((value) => value === 'on'),
 })
 
 export type ClientInput = z.output<typeof clientInputSchema>

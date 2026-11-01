@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@access/ai": "workspace:*",
     "@access/db": "workspace:*",
     "@clerk/nextjs": "^7.9.17",
     "@supabase/supabase-js": "^2.118.0",

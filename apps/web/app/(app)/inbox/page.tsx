@@ -4,6 +4,7 @@ import { LiveRefresh } from '@/components/LiveRefresh'
 import { LabelChip, SectionLabel } from '@/components/ui/badges'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { requireOrgSession } from '@/lib/auth'
+import { clientStateFrom } from '@/lib/clientState'
 import {
   FOLDERS,
   LABEL_NAMES,
@@ -15,9 +16,10 @@ import {
   type FolderFilter,
   type FolderKey,
 } from '@/lib/selectors/inbox'
+import { autoReleaseMode, gates } from '@/lib/selectors/stages'
 import { supabaseServer } from '@/lib/supabase/server'
 import { LABEL_COLORS } from '@/lib/tokens'
-import { CorrectionForm, HandledButton } from './TriageControls'
+import { CorrectionForm, HandledButton, StartReleaseForm } from './TriageControls'
 
 export const metadata = { title: 'Inbox' }
 
@@ -57,6 +59,27 @@ const EXTRACTED_FIELDS: [string, string][] = [
   ['requested_date', 'Requested date'],
   ['tier_hint', 'Tier'],
 ]
+
+/**
+ * Can a release start from this email? Mirrors the database's release gate so
+ * the button only shows when `create_release()` will accept it.
+ */
+async function releaseStart(db: Awaited<ReturnType<typeof supabaseServer>>, emailId: string, clientId: string) {
+  const [client, existing, artifacts, meetings] = await Promise.all([
+    db.from('clients').select('tier, onboarded_externally').eq('id', clientId).maybeSingle(),
+    db.from('releases').select('id').eq('source_email_id', emailId).maybeSingle(),
+    db.from('artifacts').select('type, status, approved_version_id').eq('client_id', clientId).eq('type', 'strategy').neq('status', 'archived'),
+    db.from('meetings').select('kind, held_on, scheduled_for').eq('client_id', clientId),
+  ])
+  if (!client.data) return null
+  const cs = clientStateFrom({ artifacts: artifacts.data ?? [], meetings: meetings.data ?? [], release: null })
+  const gate = gates(cs, { onboardedExternally: client.data.onboarded_externally }).releases
+  return {
+    existingId: existing.data?.id ?? null,
+    blocked: gate.blocked ? gate.msg : null,
+    weEdit: autoReleaseMode(client.data.tier) === 'B',
+  }
+}
 
 /**
  * Shared-inbox triage (AGENTS.md §12): folders over the classified mail, the
@@ -122,6 +145,7 @@ export default async function InboxPage({
       ])
     : [null, null]
   const email = selected?.data ?? null
+  const startRelease = email?.label === 'release_info' && email.client_id ? await releaseStart(db, email.id, email.client_id) : null
 
   const links = new Map<string, string>()
   await Promise.all(
@@ -138,6 +162,7 @@ export default async function InboxPage({
   }
 
   const extracted = (email?.extracted ?? {}) as Record<string, unknown>
+  const requestedDate = typeof extracted.requested_date === 'string' ? extracted.requested_date.slice(0, 10) : null
   const extractedRows = EXTRACTED_FIELDS.filter(([key]) => typeof extracted[key] === 'string' && extracted[key])
 
   return (
@@ -277,6 +302,26 @@ export default async function InboxPage({
                     {email.body_text?.trim() || '(no text body)'}
                   </div>
                   <div className="stack" style={{ flex: '0 0 220px', gap: 16 }}>
+                    {startRelease && (
+                      <div className="stack" style={{ gap: 8 }}>
+                        <SectionLabel size="sm">Release</SectionLabel>
+                        {startRelease.existingId ? (
+                          <Link href={`/clients/${email.client_id}/releases`}>Release started · open it →</Link>
+                        ) : startRelease.blocked ? (
+                          <span className="hint hint--muted">
+                            {startRelease.blocked}{' '}
+                            <Link href={`/clients/${email.client_id}/overview`}>Already a client? Skip onboarding on their overview.</Link>
+                          </span>
+                        ) : (
+                          <StartReleaseForm
+                            emailId={email.id}
+                            defaultTitle={(typeof extracted.release_topic === 'string' && extracted.release_topic) || email.subject || ''}
+                            defaultDueOn={requestedDate && /^\d{4}-\d{2}-\d{2}$/.test(requestedDate) ? requestedDate : null}
+                            weEdit={startRelease.weEdit}
+                          />
+                        )}
+                      </div>
+                    )}
                     <HandledButton emailId={email.id} handled={email.status === 'handled'} />
                     <CorrectionForm
                       emailId={email.id}

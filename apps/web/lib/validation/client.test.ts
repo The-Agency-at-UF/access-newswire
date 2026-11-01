@@ -18,7 +18,13 @@ describe('clientInputSchema', () => {
       tier: 'L2',
       release_cadence: null,
       owner_id: null,
+      onboarded_externally: false,
     })
+  })
+
+  it('reads the "Already a client" checkbox', () => {
+    expect(clientInputSchema.parse({ name: 'R', tier: 'L2', onboarded_externally: 'on' }).onboarded_externally).toBe(true)
+    expect(clientInputSchema.parse({ name: 'R', tier: 'L2' }).onboarded_externally).toBe(false)
   })
 
   it('adds https to a bare domain', () => {

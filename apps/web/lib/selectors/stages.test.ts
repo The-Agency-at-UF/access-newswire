@@ -183,3 +183,29 @@ describe('pipeline', () => {
     expect(nodes.every((node) => node.state === 'done')).toBe(true)
   })
 })
+
+describe('clients onboarded before the app', () => {
+  const flags = { onboardedExternally: true }
+
+  it('open the onboarding, strategy and release gates, as the database does', () => {
+    const g = gates(EMPTY_CLIENT_STATE, flags)
+    expect(g.onboarding.blocked).toBe(false)
+    expect(g.strategy.blocked).toBe(false)
+    expect(g.releases.blocked).toBe(false)
+  })
+
+  it('still gate media lists and pitches on approvals', () => {
+    const g = gates(EMPTY_CLIENT_STATE, flags)
+    expect(g.media.blocked).toBe(true)
+    expect(g.pitches.blocked).toBe(true)
+  })
+
+  it('start their sequence at the release loop', () => {
+    expect(stageSequence('L2', flags)).toEqual(RELEASE_STAGES.L2)
+    expect(currentStage('L2', EMPTY_CLIENT_STATE, NO_DATES, flags).label).toBe(RELEASE_STAGES.L2[0]?.[1])
+  })
+
+  it('leave other clients gated', () => {
+    expect(gates(EMPTY_CLIENT_STATE).releases.blocked).toBe(true)
+  })
+})

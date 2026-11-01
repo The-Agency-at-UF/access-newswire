@@ -4,7 +4,7 @@ import { useActionState, useEffect } from 'react'
 import type { Enums } from '@access/db'
 import { LABEL_NAMES } from '@/lib/selectors/inbox'
 import { useStore } from '@/lib/store'
-import { correctEmailAction, setHandledAction, type InboxActionState } from './actions'
+import { correctEmailAction, setHandledAction, startReleaseAction, type InboxActionState } from './actions'
 
 function useFlash(result: InboxActionState) {
   const { actions } = useStore()
@@ -86,6 +86,53 @@ export function CorrectionForm({
       </label>
       <button type="submit" className="btn btn--sm" disabled={pending}>
         {pending ? 'Saving…' : 'Save'}
+      </button>
+      <ErrorLine result={result} />
+    </form>
+  )
+}
+
+/**
+ * Start a release from this email. Shown for release info that's matched to
+ * a client; the first draft is queued and opens on the Releases tab.
+ */
+export function StartReleaseForm({
+  emailId,
+  defaultTitle,
+  defaultDueOn,
+  weEdit,
+}: {
+  emailId: string
+  defaultTitle: string
+  defaultDueOn: string | null
+  /** L2: we edit the client's draft (this email, or what they attached) rather than write one. */
+  weEdit: boolean
+}) {
+  const [result, formAction, pending] = useActionState(startReleaseAction, null)
+
+  return (
+    <form action={formAction} className="stack" style={{ gap: 10 }} key={emailId}>
+      <input type="hidden" name="email_id" value={emailId} />
+      <label className="field">
+        <span className="fieldLabel">Release title</span>
+        <input className="input" name="title" required maxLength={200} defaultValue={defaultTitle} />
+      </label>
+      <label className="field">
+        <span className="fieldLabel">Due</span>
+        <input className="input" name="due_on" type="date" defaultValue={defaultDueOn ?? ''} />
+      </label>
+      <label className="field">
+        <span className="fieldLabel">Notes for the draft</span>
+        <textarea className="textarea textarea--sm" name="instructions" maxLength={4000} rows={3} placeholder="Optional" />
+      </label>
+      <span className="hint hint--muted">
+        {weEdit
+          ? 'Level 2: we suggest edits to the client’s draft from this email.'
+          : 'We write the release from this email, the strategy and the client’s documents.'}{' '}
+        A first draft is queued for review; nothing is sent.
+      </span>
+      <button type="submit" className="btn btn--sm btn--primary" disabled={pending}>
+        {pending ? 'Starting…' : 'Start release'}
       </button>
       <ErrorLine result={result} />
     </form>

@@ -14,6 +14,7 @@ export interface ClientListRow {
   tier: Tier
   release_cadence: string | null
   owner_id: string | null
+  onboarded_externally: boolean
   created_at: string
   owner: { name: string } | null
   cs: ClientState
@@ -80,7 +81,9 @@ export function ClientTable({ clients }: { clients: ClientListRow[] }) {
           </div>
 
           {rows.map((client) => {
-            const stage = currentStage(client.tier, client.cs, client.meetingDates)
+            const stage = currentStage(client.tier, client.cs, client.meetingDates, {
+              onboardedExternally: client.onboarded_externally,
+            })
             return (
               <Link
                 key={client.id}
