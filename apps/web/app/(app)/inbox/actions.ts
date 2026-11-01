@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { requireOrgSession } from '@/lib/auth'
 import { supabaseServer } from '@/lib/supabase/server'
@@ -55,4 +56,57 @@ export async function setHandledAction(_prev: InboxActionState, formData: FormDa
 
   revalidatePath('/inbox')
   return { ok: true, message: handled ? 'Marked handled.' : 'Reopened.' }
+}
+
+const startReleaseSchema = z.object({
+  email_id: z.uuid(),
+  title: z.string().trim().min(1, 'Give the release a title.').max(200),
+  due_on: z.union([z.literal(''), z.iso.date()]).transform((v) => v || null),
+  instructions: z.string().trim().max(4000).optional().transform((v) => v || null),
+})
+
+/**
+ * Start a release from a client's email: create it (the database checks the
+ * gates and picks write or edit from the tier), queue the first draft, and
+ * mark the email handled. The draft lands on the Releases tab for review.
+ */
+export async function startReleaseAction(_prev: InboxActionState, formData: FormData): Promise<InboxActionState> {
+  await requireOrgSession()
+  const parsed = startReleaseSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return { ok: false, message: parsed.error.issues.map((issue) => issue.message).join(' · ') }
+  const input = parsed.data
+  const db = await supabaseServer()
+
+  const { data: email, error: emailError } = await db.from('emails').select('id, client_id').eq('id', input.email_id).maybeSingle()
+  if (emailError) return { ok: false, message: emailError.message }
+  if (!email?.client_id) return { ok: false, message: 'Set the client for this email first.' }
+
+  const { data: existing } = await db.from('releases').select('id').eq('source_email_id', email.id).maybeSingle()
+  if (existing) return { ok: false, message: 'A release was already started from this email.' }
+
+  const { data: releaseId, error } = await db.rpc('create_release', {
+    p_client_id: email.client_id,
+    p_title: input.title,
+    p_due_on: input.due_on ?? undefined,
+    p_source_email_id: email.id,
+  })
+  if (error) return { ok: false, message: error.message }
+
+  const { data: release, error: releaseError } = await db.from('releases').select('mode').eq('id', releaseId).single()
+  if (releaseError) return { ok: false, message: releaseError.message }
+
+  // L2 is edit mode: the email body is the client's draft unless they attached one.
+  const { error: jobError } = await db.rpc('enqueue_job', {
+    p_type: release.mode === 'edit' ? 'release.edit' : 'release.draft',
+    p_client_id: email.client_id,
+    p_release_id: releaseId,
+    p_input: { instructions: input.instructions },
+  })
+  if (jobError) return { ok: false, message: `The release was created, but the draft couldn't be queued: ${jobError.message}` }
+
+  await db.rpc('set_email_handled', { p_email_id: email.id, p_handled: true })
+
+  revalidatePath('/inbox')
+  revalidatePath(`/clients/${email.client_id}`, 'layout')
+  redirect(`/clients/${email.client_id}/releases`)
 }

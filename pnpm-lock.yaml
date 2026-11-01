@@ -14,6 +14,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@access/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@access/db':
         specifier: workspace:*
         version: link:../../packages/db

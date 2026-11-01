@@ -539,6 +539,19 @@ plain text only. The person on inbox duty starts in Unmatched. Settings connects
 the shared mailbox (admins) and schedules inbox duty; the client overview shows
 the client's latest mail.
 
+**Phase 3 started.** Existing clients: "Already a client" on intake, or the
+toggle on the overview, sets `onboarded_externally`; `gates()`,
+`stageSequence()` and `currentStage()` take `{ onboardedExternally }` so the UI
+skips the same stages the database does. Start release: a release-info email
+matched to a client shows a form in the Inbox preview (only when the release
+gate is open); it calls `create_release()` with the email as source, queues
+`release.draft` or `release.edit` by mode, marks the email handled and opens
+the Releases tab, which shows the release, its jobs and the latest draft
+(`AI DRAFT` while `origin = ai`). Pages validate version content with the
+worker's schemas via `@access/ai/schemas` (that subpath imports only zod; don't
+import the package root in the web app). Review, editing and approval on the
+Releases tab come next.
+
 **Backend complete, screens next.** All §8 tables, rules, the worker and every
 §11 task exist and are reachable from `/dev`; the stage screens, Approvals
 and Journalists still need wiring to them (they show an `EmptyState`).
