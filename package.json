@@ -11,7 +11,9 @@
     "db:migration": "supabase migration new",
     "db:push": "supabase db push --linked",
     "db:test": "supabase test db --linked",
-    "db:types": "supabase gen types typescript --linked --schema public > packages/db/types.ts"
+    "db:types": "supabase gen types typescript --linked --schema public > packages/db/types.ts",
+    "demo:seed": "pnpm --filter @access/worker demo seed",
+    "demo:reset": "pnpm --filter @access/worker demo reset"
   },
   "devDependencies": {
     "turbo": "^2.3.3"

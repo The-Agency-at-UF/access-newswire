@@ -24,7 +24,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <StoreProvider memberId={memberId}>
-      <AppShell>{children}</AppShell>
+      <AppShell demo={Boolean(process.env.DEMO_ORG_ID) && session.orgId === process.env.DEMO_ORG_ID}>
+        {children}
+      </AppShell>
     </StoreProvider>
   )
 }

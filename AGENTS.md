@@ -132,7 +132,12 @@ pnpm db:migration <name>     # new migration (supabase migration new)
 pnpm db:push                 # apply new migrations to the linked hosted project
 pnpm db:test                 # pgTAP tests in supabase/tests (RLS), against the hosted project
 pnpm db:types                # supabase gen types typescript --linked → packages/db/types.ts
+
+pnpm demo:seed [org_…]       # replace the demo team's data with fresh demo data
+pnpm demo:reset [org_…]      # delete the demo team's data
 ```
+
+**Demo team.** Demo data lives in its own Clerk organization (`DEMO_ORG_ID`), so RLS keeps it apart from real data; switching to production is picking the real team in the top bar's team switcher. `apps/worker/src/demo/` holds the data (`data.ts`, fictional, `.example` domains, times relative to the seed) and renders it as one SQL block run through `supabase db query --linked` (no database password). Both commands refuse a team that has a client without `profile.demo` or mail that didn't come from the seed, and they leave real members' own rows alone. The seed queues no jobs: drafts, jobs and usage rows are pre-made. Whoever already belongs to the demo team owns a few clients and is on inbox duty. Extend `data.ts` as screens are wired.
 
 There is no local Supabase stack: the app and the CLI both use the hosted project (`supabase link --project-ref <ref>` once per machine). `pnpm db:test` wraps each file in a transaction and rolls back, but it needs Docker for `pg_prove`. The CLI logs in as a temporary role that can't see the `extensions` schema (pgTAP), so every test file starts with `set local role postgres; set local search_path = public, extensions;`, and switches back with `set local role postgres`, not `reset role`.
 
@@ -172,6 +177,9 @@ MAIL_WEBHOOK_URL=                    # public https URL of /api/webhooks/mail
 # Notifications
 SLACK_WEBHOOK_URL=                   # worker ONLY
 APP_URL=                             # links in alerts
+
+# Demo
+DEMO_ORG_ID=                         # web: shows the "Demo data" pill; also the default team for pnpm demo:*
 
 SENTRY_DSN=
 ```
@@ -551,6 +559,9 @@ the Releases tab, which shows the release, its jobs and the latest draft
 worker's schemas via `@access/ai/schemas` (that subpath imports only zod; don't
 import the package root in the web app). Review, editing and approval on the
 Releases tab come next.
+
+**Demo.** A demo team holds seeded, made-up data (§5). The top bar shows a
+team switcher, and a "Demo data" pill while the demo team is active.
 
 **Backend complete, screens next.** All §8 tables, rules, the worker and every
 §11 task exist and are reachable from `/dev`; the stage screens, Approvals
