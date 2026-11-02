@@ -8,21 +8,21 @@
 
 import type { GenerationTask } from '@access/ai'
 
-export type MemberKey = 'mark' | 'emily' | 'liz' | 'daniel'
+export type MemberKey = 'nora' | 'theo' | 'iris' | 'felix'
 /** `presenter` is whoever already belongs to the demo team (the person demoing). */
 export type OwnerKey = MemberKey | 'presenter'
 export type Tier = 'L1' | 'L2' | 'L3'
 export type EmailLabel = 'release_info' | 'client_update' | 'sales_handoff' | 'social' | 'auto_notification' | 'other'
 
 export const MEMBERS: Record<MemberKey, { name: string; email: string }> = {
-  mark: { name: 'Mark', email: 'mark@newswire.example' },
-  emily: { name: 'Emily', email: 'emily@newswire.example' },
-  liz: { name: 'Liz Gonzalez', email: 'liz@newswire.example' },
-  daniel: { name: 'Daniel', email: 'daniel@newswire.example' },
+  nora: { name: 'Nora Bennett', email: 'nora@newswire.example' },
+  theo: { name: 'Theo Grant', email: 'theo@newswire.example' },
+  iris: { name: 'Iris Castillo', email: 'iris@newswire.example' },
+  felix: { name: 'Felix Ward', email: 'felix@newswire.example' },
 }
 
 /** Owner of anything assigned to the presenter when the demo team has no one else yet. */
-export const PRESENTER_FALLBACK: MemberKey = 'daniel'
+export const PRESENTER_FALLBACK: MemberKey = 'felix'
 
 export const SHARED_INBOX = 'theagency@newswire.example'
 
@@ -82,7 +82,7 @@ export const CLIENTS = {
     industry: 'Asset management',
     tier: 'L2',
     cadence: '1 / week',
-    owner: 'mark',
+    owner: 'nora',
     onboardedExternally: true,
     addedDaysAgo: 420,
     about: 'Independent asset manager focused on fixed income. Boston.',
@@ -94,7 +94,7 @@ export const CLIENTS = {
     industry: 'Industrial robotics',
     tier: 'L3',
     cadence: '2 / month',
-    owner: 'mark',
+    owner: 'nora',
     onboardedExternally: true,
     addedDaysAgo: 250,
     about: 'Collaborative robots for mid-size manufacturers. Pittsburgh.',
@@ -106,7 +106,7 @@ export const CLIENTS = {
     industry: 'Consumer packaged food',
     tier: 'L1',
     cadence: '1 / week',
-    owner: 'emily',
+    owner: 'theo',
     onboardedExternally: true,
     addedDaysAgo: 120,
     about: 'Plant-based seafood brand sold in 3,000 grocery stores.',
@@ -118,7 +118,7 @@ export const CLIENTS = {
     industry: 'Apparel retail',
     tier: 'L2',
     cadence: '2 / month',
-    owner: 'emily',
+    owner: 'theo',
     onboardedExternally: true,
     addedDaysAgo: 95,
     about: 'Direct-to-consumer outerwear brand. Portland, Oregon.',
@@ -130,7 +130,7 @@ export const CLIENTS = {
     industry: 'Clean energy',
     tier: 'L3',
     cadence: '1 / week',
-    owner: 'liz',
+    owner: 'iris',
     onboardedExternally: true,
     addedDaysAgo: 180,
     about: 'Community solar developer in the Southwest.',
@@ -142,7 +142,7 @@ export const CLIENTS = {
     industry: 'Developer tools',
     tier: 'L1',
     cadence: '1 / week',
-    owner: 'liz',
+    owner: 'iris',
     onboardedExternally: true,
     addedDaysAgo: 75,
     about: 'Testing tools for mobile app teams.',
@@ -154,7 +154,7 @@ export const CLIENTS = {
     industry: 'Logistics',
     tier: 'L1',
     cadence: '1 / week',
-    owner: 'mark',
+    owner: 'nora',
     onboardedExternally: false,
     addedDaysAgo: 45,
     about: 'Regional freight brokerage for the Gulf Coast.',
@@ -166,7 +166,7 @@ export const CLIENTS = {
     industry: 'Healthcare services',
     tier: 'L2',
     cadence: '2 / month',
-    owner: 'daniel',
+    owner: 'felix',
     onboardedExternally: false,
     addedDaysAgo: 12,
     about: 'Group of 22 dental practices across Georgia.',
@@ -178,7 +178,7 @@ export const CLIENTS = {
     industry: 'Outdoor gear',
     tier: 'L3',
     cadence: '1 / week',
-    owner: 'daniel',
+    owner: 'felix',
     onboardedExternally: false,
     addedDaysAgo: 2,
     about: 'Camping and hiking gear, sold online and in 40 stores.',
@@ -356,7 +356,7 @@ export const EMAILS = {
     client: 'lumen',
     from: contactOf('lumen'),
     subject: 'Brightwater partnership — release request',
-    body: "Hi Liz,\n\nWe've signed with Brightwater Utility for a 50 MW community solar program in New Mexico. Subscribers save about 10% on their bills. Can we get a release out next week?\n\nElena",
+    body: "Hi Iris,\n\nWe've signed with Brightwater Utility for a 50 MW community solar program in New Mexico. Subscribers save about 10% on their bills. Can we get a release out next week?\n\nElena",
     hoursAgo: 20,
     label: 'release_info',
     confidence: 0.95,
@@ -376,7 +376,7 @@ export const EMAILS = {
     client: 'tidewater',
     from: contactOf('tidewater'),
     subject: 'New product line — release next week?',
-    body: "Hi Emily,\n\nWe're launching three new plant-based seafood products (crab cakes, shrimp and smoked salmon) in Kroger and Publix stores on the 10th. Could you write a release? Happy to get you a quote from our founder.\n\nHannah",
+    body: "Hi Theo,\n\nWe're launching three new plant-based seafood products (crab cakes, shrimp and smoked salmon) in Kroger and Publix stores on the 10th. Could you write a release? Happy to get you a quote from our founder.\n\nHannah",
     hoursAgo: 0.7,
     label: 'release_info',
     confidence: 0.91,
@@ -468,7 +468,7 @@ export const EMAILS = {
     client: 'harborview',
     from: contactOf('harborview'),
     subject: 'Compliance review timing',
-    body: 'Hi Mark,\n\nOur compliance team needs 48 hours to review any release before it goes out. Please build that into the schedule.\n\nRachel',
+    body: 'Hi Nora,\n\nOur compliance team needs 48 hours to review any release before it goes out. Please build that into the schedule.\n\nRachel',
     hoursAgo: 28,
     label: 'client_update',
     confidence: 0.9,
@@ -492,7 +492,7 @@ export const EMAILS = {
     client: 'vantage',
     from: contactOf('vantage'),
     subject: 'Ideas for our first release',
-    body: "Hi Mark,\n\nNow that the strategy's approved, here are a few ideas for the first release: our new Houston cross-dock, the 98% on-time rate we hit in Q3, or our driver safety award. Your call on which leads.\n\nChris",
+    body: "Hi Nora,\n\nNow that the strategy's approved, here are a few ideas for the first release: our new Houston cross-dock, the 98% on-time rate we hit in Q3, or our driver safety award. Your call on which leads.\n\nChris",
     hoursAgo: 46,
     label: 'client_update',
     confidence: 0.84,
@@ -504,7 +504,7 @@ export const EMAILS = {
     client: 'oakridge',
     from: contactOf('oakridge'),
     subject: 'Confirming our kickoff meeting',
-    body: "Hi Daniel,\n\nConfirming Thursday at 2pm for the onboarding meeting. I'll bring our practice growth numbers.\n\nLisa",
+    body: "Hi Felix,\n\nConfirming Thursday at 2pm for the onboarding meeting. I'll bring our practice growth numbers.\n\nLisa",
     hoursAgo: 18,
     label: 'client_update',
     confidence: 0.9,
@@ -554,14 +554,14 @@ export const EMAILS = {
   },
   gridpointHandoff: {
     client: null,
-    from: { name: 'Jake', address: 'jake@newswire.example' },
+    from: { name: 'Rafael', address: 'rafael@newswire.example' },
     subject: 'New client: Gridpoint Energy (L2)',
     body: [
       'Hi team,',
       '',
       'Just closed Gridpoint Energy on the L2 package. They make battery storage for commercial buildings, based in Denver. Main contact is Maya Torres, VP Marketing (maya@gridpoint.example). They want to start with one release a week.',
       '',
-      'Jake',
+      'Rafael',
     ].join('\n'),
     hoursAgo: 6,
     label: 'sales_handoff',
@@ -604,9 +604,9 @@ export const EMAILS = {
   // Handled earlier.
   pinecrestHandoff: {
     client: 'pinecrest',
-    from: { name: 'Jake', address: 'jake@newswire.example' },
+    from: { name: 'Rafael', address: 'rafael@newswire.example' },
     subject: 'New client: Pinecrest Outdoor (L3)',
-    body: 'Hi team,\n\nPinecrest Outdoor signed for L3. Contact is Nate Holloway, VP Marketing. Daniel, they asked for you.\n\nJake',
+    body: 'Hi team,\n\nPinecrest Outdoor signed for L3. Contact is Nate Holloway, VP Marketing. Felix, they asked for you.\n\nRafael',
     hoursAgo: 50,
     label: 'sales_handoff',
     confidence: 0.98,
@@ -802,7 +802,7 @@ export const RELEASES: DemoRelease[] = [
       },
       {
         origin: 'mixed',
-        by: 'mark',
+        by: 'nora',
         content: {
           headline: 'Copperline Mining Lifts Copper Recovery 18% at Arizona Site After Water-Recycling Retrofit',
           subheadline: 'Retrofit cuts fresh water use by a third while raising output from the same ore',
@@ -829,8 +829,8 @@ export const RELEASES: DemoRelease[] = [
       },
     ],
     reviews: [
-      { action: 'submitted', by: 'emily', version: 2, hoursAgo: 30 },
-      { action: 'approved', by: 'mark', version: 2, hoursAgo: 26, comment: 'Client signed off on the new quote.' },
+      { action: 'submitted', by: 'theo', version: 2, hoursAgo: 30 },
+      { action: 'approved', by: 'nora', version: 2, hoursAgo: 26, comment: 'Client signed off on the new quote.' },
     ],
   },
   {
@@ -870,7 +870,7 @@ export const RELEASES: DemoRelease[] = [
         },
       },
     ],
-    reviews: [{ action: 'submitted', by: 'mark', version: 1, hoursAgo: 20 }],
+    reviews: [{ action: 'submitted', by: 'nora', version: 1, hoursAgo: 20 }],
   },
   {
     client: 'meridian',
@@ -900,7 +900,7 @@ export const RELEASES: DemoRelease[] = [
       },
       {
         origin: 'mixed',
-        by: 'mark',
+        by: 'nora',
         content: {
           headline: 'Meridian Robotics Opens Pittsburgh Assembly Plant, Adding 120 Jobs',
           subheadline: 'New apprenticeship program with the Community College of Allegheny County will train local technicians',
@@ -927,15 +927,15 @@ export const RELEASES: DemoRelease[] = [
       },
     ],
     reviews: [
-      { action: 'submitted', by: 'mark', version: 1, hoursAgo: 60 },
+      { action: 'submitted', by: 'nora', version: 1, hoursAgo: 60 },
       {
         action: 'changes_requested',
-        by: 'liz',
+        by: 'iris',
         version: 1,
         hoursAgo: 40,
         comment: 'Square footage is wrong (85,000) and the apprenticeship program is missing.',
       },
-      { action: 'submitted', by: 'mark', version: 2, hoursAgo: 19 },
+      { action: 'submitted', by: 'nora', version: 2, hoursAgo: 19 },
     ],
   },
   {
@@ -1051,7 +1051,7 @@ export const ONBOARDING: DemoOnboarding[] = [
         ]),
       },
     ],
-    reviews: [{ action: 'approved', by: 'daniel', version: 1, hoursAgo: 220 }],
+    reviews: [{ action: 'approved', by: 'felix', version: 1, hoursAgo: 220 }],
   },
   {
     client: 'oakridge',
@@ -1060,7 +1060,7 @@ export const ONBOARDING: DemoOnboarding[] = [
     task: 'onboarding.generate',
     status: 'in_review',
     versions: [{ origin: 'ai', content: deck('Oakridge Dental Group') }],
-    reviews: [{ action: 'submitted', by: 'daniel', version: 1, hoursAgo: 30 }],
+    reviews: [{ action: 'submitted', by: 'felix', version: 1, hoursAgo: 30 }],
   },
   {
     client: 'vantage',
@@ -1074,7 +1074,7 @@ export const ONBOARDING: DemoOnboarding[] = [
         content: research('Vantage Freight', 'vantagefreight.example', [['Gulfline Logistics', 'No safety record in the press.']]),
       },
     ],
-    reviews: [{ action: 'approved', by: 'mark', version: 1, hoursAgo: 1000 }],
+    reviews: [{ action: 'approved', by: 'nora', version: 1, hoursAgo: 1000 }],
   },
   {
     client: 'vantage',
@@ -1083,7 +1083,7 @@ export const ONBOARDING: DemoOnboarding[] = [
     task: 'onboarding.generate',
     status: 'approved',
     versions: [{ origin: 'ai', content: deck('Vantage Freight') }],
-    reviews: [{ action: 'approved', by: 'mark', version: 1, hoursAgo: 900 }],
+    reviews: [{ action: 'approved', by: 'nora', version: 1, hoursAgo: 900 }],
   },
   {
     client: 'vantage',
@@ -1129,7 +1129,7 @@ export const ONBOARDING: DemoOnboarding[] = [
       },
       {
         origin: 'mixed',
-        by: 'mark',
+        by: 'nora',
         content: {
           sections: [
             {
@@ -1165,8 +1165,8 @@ export const ONBOARDING: DemoOnboarding[] = [
       },
     ],
     reviews: [
-      { action: 'submitted', by: 'mark', version: 2, hoursAgo: 300 },
-      { action: 'approved', by: 'emily', version: 2, hoursAgo: 250, comment: 'Approved after Meeting 2.' },
+      { action: 'submitted', by: 'nora', version: 2, hoursAgo: 300 },
+      { action: 'approved', by: 'theo', version: 2, hoursAgo: 250, comment: 'Approved after Meeting 2.' },
     ],
   },
 ]

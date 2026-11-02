@@ -170,7 +170,7 @@ function seedStatements(org: string): string[] {
 
   out.push(
     insert('inbox_duty', { org_id: org, member_id: owner('presenter'), starts_at: hoursAgo(2), ends_at: hoursAgo(-6) }),
-    insert('inbox_duty', { org_id: org, member_id: member('liz'), starts_at: hoursAgo(-22), ends_at: hoursAgo(-30) }),
+    insert('inbox_duty', { org_id: org, member_id: member('iris'), starts_at: hoursAgo(-22), ends_at: hoursAgo(-30) }),
   )
 
   for (const [key, c] of Object.entries(CLIENTS) as [ClientKey, DemoClient][]) {
