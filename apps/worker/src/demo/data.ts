@@ -1280,3 +1280,81 @@ export const DOCUMENTS: DemoDocument[] = [
     ],
   },
 ]
+
+/**
+ * What the stand-in drafter (`pnpm demo:drafter`) writes when Start release is
+ * clicked on these emails during a demo. Other emails get a plain draft built
+ * from the email itself.
+ */
+export const STAND_IN_DRAFTS: Partial<Record<EmailKey, Record<string, unknown>>> = {
+  tidewaterRelease: {
+    headline: 'Tidewater Foods Brings Plant-Based Crab Cakes, Shrimp and Smoked Salmon to Kroger and Publix',
+    subheadline: 'Three new products extend the brand’s plant-based seafood line to 3,000 grocery stores',
+    dateline: 'CHARLESTON, S.C. — {date}',
+    sections: [
+      {
+        id: 'lede',
+        heading: 'Opening',
+        body: 'Tidewater Foods today announced three new plant-based seafood products, crab cakes, shrimp and smoked salmon, arriving in Kroger and Publix stores this month.',
+      },
+      {
+        id: 'products',
+        heading: 'The products',
+        body: 'Each product is made from a blend of konjac, pea protein and seaweed, and cooks the same way as its seafood counterpart. The smoked salmon is ready to eat; the crab cakes and shrimp go from freezer to pan in under ten minutes.',
+      },
+      {
+        id: 'quote',
+        heading: 'Quote',
+        body: '"Shoppers told us they missed seafood more than anything else when they cut back on fish," said Hannah Brooks, Brand Manager at Tidewater Foods. "These three were the most requested by far."',
+      },
+      {
+        id: 'availability',
+        heading: 'Availability',
+        body: 'The products will be in the frozen and refrigerated seafood aisles of Kroger and Publix stores nationwide, with a suggested retail price of $6.99 to $8.99.',
+      },
+    ],
+    boilerplate: 'Tidewater Foods makes plant-based seafood sold in 3,000 grocery stores across the United States.',
+  },
+  sableRelease: {
+    sections: [
+      { id: 'headline', heading: 'Headline', body: 'Sable & Finch Unveils Re/Down, the World’s Most Sustainable Winter Jacket' },
+      {
+        id: 'lede',
+        heading: 'Opening',
+        body: 'PORTLAND, Ore. — Sable & Finch today unveiled Re/Down, an incredibly warm winter jacket made with 100% recycled down recovered from post-consumer bedding.',
+      },
+    ],
+    suggested_edits: [
+      {
+        section_id: 'headline',
+        original: 'the World’s Most Sustainable Winter Jacket',
+        suggestion: 'a Winter Jacket Made From 100% Recycled Down',
+        reason: '"World’s most sustainable" is a claim reporters will ask you to prove. The recycled down is the real news.',
+      },
+      {
+        section_id: 'lede',
+        original: 'an incredibly warm winter jacket',
+        suggestion: 'a winter jacket rated to -10°F',
+        reason: 'A temperature rating is more convincing than "incredibly warm". Confirm the rating with Jordan.',
+      },
+    ],
+  },
+  bluefinNext: {
+    headline: 'Bluefin Health and Lone Star Clinics Offer After-Hours Virtual Visits to 60,000 Patients',
+    subheadline: null,
+    dateline: 'HOUSTON, Texas — {date}',
+    sections: [
+      {
+        id: 'lede',
+        heading: 'Opening',
+        body: 'Bluefin Health and Lone Star Clinics today announced a partnership that gives the clinics’ 60,000 patients access to virtual visits on evenings and weekends.',
+      },
+      {
+        id: 'quote',
+        heading: 'Quote',
+        body: '"Illness doesn’t keep office hours," said Dr. Angela Morris, CEO of Bluefin Health.',
+      },
+    ],
+    boilerplate: 'Bluefin Health provides virtual primary care to rural communities across Texas. Founded in 2021, the company is based in Houston.',
+  },
+}

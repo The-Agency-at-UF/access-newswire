@@ -43,7 +43,7 @@ const STAGE_FOR_TYPE: Partial<Record<Enums<'artifact_type'>, ArtifactKey>> = {
   pitch_set: 'pitch',
 }
 
-const STATUS_LABEL: Record<Enums<'artifact_status'>, ArtifactStatus> = {
+export const STATUS_LABEL: Record<Enums<'artifact_status'>, ArtifactStatus> = {
   draft: 'Draft',
   in_review: 'In Review',
   approved: 'Approved',

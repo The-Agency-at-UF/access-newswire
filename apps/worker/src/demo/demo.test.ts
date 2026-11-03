@@ -78,6 +78,11 @@ describe('demo SQL', () => {
     }
   })
 
+  it('prefers the named presenter, safely quoted', () => {
+    expect(seedSql(ORG)).not.toContain('lower(email)')
+    expect(seedSql(ORG, "o'neil@x.example")).toContain(`order by lower(email) = lower('o''neil@x.example') desc, created_at`)
+  })
+
   it('seeds every client as demo data', () => {
     const sql = seedSql(ORG)
     expect(sql.match(/insert into public\.clients /g)).toHaveLength(Object.keys(CLIENTS).length)

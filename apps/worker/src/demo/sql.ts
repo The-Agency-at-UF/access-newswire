@@ -132,12 +132,13 @@ export function resetSql(orgId: string): string {
   return `${block(orgId, [])}\n${summary(orgId)}\n`
 }
 
-export function seedSql(orgId: string): string {
+/** `presenter` picks the presenting member by email; otherwise the team's first real member. */
+export function seedSql(orgId: string, presenter?: string): string {
   assertOrgId(orgId)
-  return `${block(orgId, seedStatements(orgId))}\n${summary(orgId)}\n`
+  return `${block(orgId, seedStatements(orgId, presenter))}\n${summary(orgId)}\n`
 }
 
-function seedStatements(org: string): string[] {
+function seedStatements(org: string, presenter?: string): string[] {
   const out: string[] = []
   const memberIds = Object.fromEntries(Object.keys(MEMBERS).map((k) => [k, randomUUID()])) as Record<MemberKey, string>
   const clientIds = Object.fromEntries(Object.keys(CLIENTS).map((k) => [k, randomUUID()])) as Record<ClientKey, string>
@@ -148,11 +149,13 @@ function seedStatements(org: string): string[] {
     key === 'presenter' ? raw(`coalesce(v_presenter, ${literal(memberIds[PRESENTER_FALLBACK])})`) : memberIds[key]
   const clientOwner = (key: ClientKey) => owner(CLIENTS[key].owner)
 
-  // Whoever already belongs to the team is the presenter: they own a few
-  // clients and are on inbox duty, so "Assigned to me" and Unmatched have mail.
+  // Whoever already belongs to the team is the presenter (the named one
+  // first): they own a few clients and are on inbox duty, so "Assigned to me"
+  // and Unmatched have mail.
   out.push(
     `select id into v_presenter from public.team_members where org_id = ${literal(org)}` +
-      ` and clerk_user_id not like ${literal(DEMO_MEMBER_LIKE)} order by created_at limit 1;`,
+      ` and clerk_user_id not like ${literal(DEMO_MEMBER_LIKE)}` +
+      ` order by ${presenter ? `lower(email) = lower(${literal(presenter)}) desc, ` : ''}created_at limit 1;`,
   )
 
   for (const [key, m] of Object.entries(MEMBERS) as [MemberKey, { name: string; email: string }][]) {
