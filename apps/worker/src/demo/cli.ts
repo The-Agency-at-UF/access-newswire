@@ -3,10 +3,12 @@
  *
  *   pnpm demo:seed [org_…]    replace the demo team's data with fresh demo data
  *   pnpm demo:reset [org_…]   delete the demo team's data
+ *   pnpm demo:drafter [org_…] stand in for the worker: answer Start release with pre-written drafts
  *
  * The org id defaults to DEMO_ORG_ID (apps/web/.env or .env.local, which also turns on the
  * app's "Demo data" pill). SQL runs through `supabase db query --linked`, so
  * it needs the Supabase CLI logged in and linked, and no database password.
+ * The drafter uses the web app's Supabase URL and secret key.
  */
 
 import { execFileSync } from 'node:child_process'
@@ -14,14 +16,15 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { runDrafter } from './drafter'
 import { assertOrgId, resetSql, seedSql } from './sql'
 
 const repoRoot = fileURLToPath(new URL('../../../../', import.meta.url))
 
-function main() {
+async function main() {
   const [command, orgArg] = process.argv.slice(2)
-  if (command !== 'seed' && command !== 'reset') {
-    console.error('Usage: demo <seed|reset> [org_…]')
+  if (command !== 'seed' && command !== 'reset' && command !== 'drafter') {
+    console.error('Usage: demo <seed|reset|drafter> [org_…]')
     process.exit(1)
   }
   const orgId = orgArg ?? process.env.DEMO_ORG_ID
@@ -30,6 +33,7 @@ function main() {
     process.exit(1)
   }
   assertOrgId(orgId)
+  if (command === 'drafter') return runDrafter(orgId)
 
   const dir = mkdtempSync(join(tmpdir(), 'access-demo-'))
   try {
@@ -42,4 +46,4 @@ function main() {
   }
 }
 
-main()
+await main()

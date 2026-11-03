@@ -100,6 +100,7 @@ apps/
     src/queue.ts   read → run → succeed / retry with backoff / fail; idempotent by job_id
     src/tasks/     one file per task family; tasks/index.ts maps jobs.type → task
   bot/          (later) Slack bot; v1 alerts are sent from the worker
+  demo/         Playwright script that records the demo video against the demo team
 packages/
   db/           generated Supabase types (`@access/db`); never edit types.ts by hand
   ai/           model routing, pricing, context builder, output schemas (zod), placeholder
@@ -135,9 +136,13 @@ pnpm db:types                # supabase gen types typescript --linked → packag
 
 pnpm demo:seed [org_…]       # replace the demo team's data with fresh demo data
 pnpm demo:reset [org_…]      # delete the demo team's data
+pnpm demo:drafter [org_…]    # stand in for the worker in the demo team: Start release gets a pre-written draft
+pnpm demo:video              # build, re-seed, run the drafter and record apps/demo/out/access-pr-demo.webm
 ```
 
 **Demo team.** Demo data lives in its own Clerk organization (`DEMO_ORG_ID`), so RLS keeps it apart from real data; switching to production is picking the real team in the top bar's team switcher. `apps/worker/src/demo/` holds the data (`data.ts`, fictional, `.example` domains, times relative to the seed) and renders it as one SQL block run through `supabase db query --linked` (no database password). Both commands refuse a team that has a client without `profile.demo` or mail that didn't come from the seed, and they leave real members' own rows alone. The seed queues no jobs: drafts, jobs and usage rows are pre-made. Whoever already belongs to the demo team owns a few clients and is on inbox duty. Extend `data.ts` as screens are wired.
+
+**Demo video.** `apps/demo` is a Playwright script (`demo.spec.ts`) that signs in as `DEMO_USER_EMAIL` with Clerk's testing helpers (development instances only), then walks through triage, Start release, editing, review and an L2 edit, with a drawn cursor and captions (`overlay.ts`). It finds elements by role and accessible name, so keep button and field labels stable or update the script. `DEMO_SHOTS=1` also saves a screenshot per caption. The stand-in drafter answers Start release in about 30 seconds; its usage rows say `stand_in` and cost nothing.
 
 There is no local Supabase stack: the app and the CLI both use the hosted project (`supabase link --project-ref <ref>` once per machine). `pnpm db:test` wraps each file in a transaction and rolls back, but it needs Docker for `pg_prove`. The CLI logs in as a temporary role that can't see the `extensions` schema (pgTAP), so every test file starts with `set local role postgres; set local search_path = public, extensions;`, and switches back with `set local role postgres`, not `reset role`.
 
@@ -557,8 +562,12 @@ gate is open); it calls `create_release()` with the email as source, queues
 the Releases tab, which shows the release, its jobs and the latest draft
 (`AI DRAFT` while `origin = ai`). Pages validate version content with the
 worker's schemas via `@access/ai/schemas` (that subpath imports only zod; don't
-import the package root in the web app). Review, editing and approval on the
-Releases tab come next.
+import the package root in the web app). The Releases tab edits a draft into a new
+version (written releases field by field; L2 edits by keeping, rewording or
+dropping each suggestion, `lib/releaseDraft.ts`), refuses a save over a newer
+version, and runs review through `submit_for_review()`, `approve_version()` and
+`request_changes()`, with the review history and every version (`?v=`) in the
+rail.
 
 **Demo.** A demo team holds seeded, made-up data (§5). The top bar shows a
 team switcher, and a "Demo data" pill while the demo team is active.

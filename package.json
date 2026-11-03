@@ -13,7 +13,9 @@
     "db:test": "supabase test db --linked",
     "db:types": "supabase gen types typescript --linked --schema public > packages/db/types.ts",
     "demo:seed": "pnpm --filter @access/worker demo seed",
-    "demo:reset": "pnpm --filter @access/worker demo reset"
+    "demo:reset": "pnpm --filter @access/worker demo reset",
+    "demo:drafter": "pnpm --filter @access/worker demo drafter",
+    "demo:video": "pnpm --filter @access/web build && pnpm --filter @access/demo video"
   },
   "devDependencies": {
     "turbo": "^2.3.3"
