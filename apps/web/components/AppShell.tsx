@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { UserButton, useUser } from '@clerk/nextjs'
+import { OrganizationSwitcher, UserButton, useUser } from '@clerk/nextjs'
 import { activeNav, breadcrumb, parseRoute } from '@/lib/nav'
 import { useStore } from '@/lib/store'
 import { Segmented } from './ui/controls'
@@ -13,7 +13,7 @@ import { Segmented } from './ui/controls'
  * Mounted once in the app layout so the store — the "My clients" filter and
  * the toast — survives navigation.
  */
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children, demo = false }: { children: React.ReactNode; demo?: boolean }) {
   const pathname = usePathname()
   const route = parseRoute(pathname)
   const current = activeNav(route)
@@ -114,6 +114,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="kbd">⌘K</span>
           </div>
           <div className="who">
+            {demo && (
+              <span className="demoPill" title="This team holds made-up demo data. Switch teams to see real data.">
+                Demo data
+              </span>
+            )}
+            <OrganizationSwitcher hidePersonal afterSelectOrganizationUrl="/inbox" />
             <UserButton />
             {user?.firstName && <span style={{ fontWeight: 500 }}>{user.firstName}</span>}
           </div>

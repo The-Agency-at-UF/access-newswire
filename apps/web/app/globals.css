@@ -314,6 +314,18 @@ p {
   flex: none;
 }
 
+/* Shown while the demo team is the active organization. */
+.demoPill {
+  font: 600 11px var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--warn);
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-line);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
 .avatar {
   width: 30px;
   height: 30px;

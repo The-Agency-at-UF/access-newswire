@@ -10,7 +10,8 @@
     "build": "tsup",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "demo": "tsx --env-file-if-exists=../web/.env --env-file-if-exists=../web/.env.local src/demo/cli.ts"
   },
   "dependencies": {
     "@access/ai": "workspace:*",
