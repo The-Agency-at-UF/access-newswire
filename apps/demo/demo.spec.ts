@@ -7,8 +7,9 @@ const VIDEO = 'out/access-pr-demo.webm'
 
 /**
  * The demo walkthrough, recorded to out/access-pr-demo.webm:
- * inbox triage → Start release → edit → review and approve → an L2 edit →
- * document search. Runs against freshly seeded demo data.
+ * inbox triage → Start release → edit → review and approve → onboarding
+ * progress → an L2 edit → document search. Runs against freshly seeded demo
+ * data.
  */
 test('ACCESS PR Bot walkthrough', async ({ page }) => {
   await setupClerkTestingToken({ page })
@@ -80,6 +81,18 @@ test('ACCESS PR Bot walkthrough', async ({ page }) => {
   await click(page, page.getByRole('button', { name: 'All', exact: true }))
   await expect(page.getByRole('link', { name: /Northwind Analytics/ })).toBeVisible()
   await caption(page, 'Every client, with its tier, owner and where it is in the pipeline.', 4500)
+
+  // A client mid-onboarding
+  await click(page, page.getByRole('link', { name: /Oakridge Dental Group/ }))
+  const onboarding = page.getByRole('list', { name: 'Onboarding stages' })
+  await expect(onboarding).toBeVisible()
+  await glide(page, onboarding)
+  await caption(page, 'Oakridge Dental is mid-onboarding: research is approved, the deck is waiting for review, and Meeting 1 is booked.', 5500)
+  await caption(page, 'Each stage opens only once the one before it is approved, and the database enforces it.', 4500)
+  await glide(page, page.getByText('Client profile'))
+  await caption(page, 'The overview keeps the profile, the latest mail and background work on one page.', 4500)
+
+  await click(page, page.getByRole('link', { name: 'Clients', exact: true }).first())
   await click(page, page.getByRole('link', { name: /Northwind Analytics/ }))
   await click(page, page.getByRole('link', { name: 'Press Releases' }))
   await expect(page.getByRole('button', { name: 'Review suggestions' })).toBeVisible()

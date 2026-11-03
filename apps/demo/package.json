@@ -5,7 +5,8 @@
   "type": "module",
   "description": "Records the demo video with Playwright against the demo team (AGENTS.md §5).",
   "scripts": {
-    "video": "playwright test",
+    "video": "playwright test && pnpm run mp4",
+    "mp4": "if command -v ffmpeg >/dev/null; then ffmpeg -y -loglevel error -i out/access-pr-demo.webm -c:v libx264 -pix_fmt yuv420p -crf 20 -movflags +faststart out/access-pr-demo.mp4 && echo 'Saved out/access-pr-demo.mp4'; else echo 'Install ffmpeg for an .mp4 copy (brew install ffmpeg).'; fi",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

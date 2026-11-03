@@ -5,6 +5,8 @@
  *   pnpm demo:reset [org_…]   delete the demo team's data
  *   pnpm demo:drafter [org_…] stand in for the worker: answer Start release with pre-written drafts
  *
+ * The seed makes DEMO_PRESENTER_EMAIL the presenter when it's set and that
+ * person has signed in to the demo team; otherwise its first real member.
  * The org id defaults to DEMO_ORG_ID (apps/web/.env or .env.local, which also turns on the
  * app's "Demo data" pill). SQL runs through `supabase db query --linked`, so
  * it needs the Supabase CLI logged in and linked, and no database password.
@@ -38,7 +40,7 @@ async function main() {
   const dir = mkdtempSync(join(tmpdir(), 'access-demo-'))
   try {
     const file = join(dir, `${command}.sql`)
-    writeFileSync(file, command === 'seed' ? seedSql(orgId) : resetSql(orgId))
+    writeFileSync(file, command === 'seed' ? seedSql(orgId, process.env.DEMO_PRESENTER_EMAIL) : resetSql(orgId))
     console.log(`${command === 'seed' ? 'Seeding' : 'Resetting'} the demo team ${orgId}…`)
     execFileSync('supabase', ['db', 'query', '--linked', '--workdir', repoRoot, '-f', file], { stdio: 'inherit' })
   } finally {
